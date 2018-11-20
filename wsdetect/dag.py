@@ -4,6 +4,7 @@ from wsdetect import cnn
 from keras.callbacks import TensorBoard, EarlyStopping
 from pathlib import Path
 import shutil
+import time
 import numpy as np
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
@@ -18,7 +19,7 @@ def train():
     sess = tf.Session(config=config)
     set_session(sess)
 
-    tb_dir = Path('e:/tmp/wsdetect')
+    tb_dir = Path('e:/tmp/wsdetect') / str(int(time.time()))
     if tb_dir.exists():
         shutil.rmtree(tb_dir.absolute().as_posix(), ignore_errors=True)
     tb_dir.mkdir(parents=True, exist_ok=True)
@@ -30,13 +31,13 @@ def train():
     train_generator = train_datagen.flow_from_directory(
         train_data_dir.absolute().as_posix(),
         target_size=(96, 54),
-        batch_size=32,
+        batch_size=64,
         class_mode='categorical')
 
     validation_generator = test_datagen.flow_from_directory(
         train_data_dir.absolute().as_posix(),
         target_size=(96, 54),
-        batch_size=32,
+        batch_size=64,
         class_mode='categorical')
 
     callbacks = [
@@ -56,7 +57,7 @@ def train():
     )
 
     print('finish training, save the model')
-    model.save((RESOURCE_DIR / 'models' / 'cnn.h5').absolute().as_posix())
+    model.save((RESOURCE_DIR / 'models' / 'cnn_{}.h5'.format(int(time.time()))).absolute().as_posix())
 
 
 def predict(model_file, image_file):
